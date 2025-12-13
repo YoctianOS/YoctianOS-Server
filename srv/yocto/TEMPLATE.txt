@@ -1,0 +1,19 @@
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/KlipperScreen/all ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/KlipperScreen/cortexa9t2hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/KlipperScreen/cortexa9t2hf-neon-mx6qdl ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/KlipperScreen/imx6qrsb4411a1 ./
+
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/cage/cortexa9t2hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/cage/cortexa9t2hf-neon-mx6qdl ./
+
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main-extra/all ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main-extra/cortexa9hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main-extra/cortexa9t2hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main-extra/cortexa9t2hf-neon-mx6qdl ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main-extra/imx6qrsb4411a1 ./
+
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main/all ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main/cortexa9hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main/cortexa9t2hf-neon ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main/cortexa9t2hf-neon-mx6qdl ./
+deb [trusted=yes] http://1.2.3.4:5678/imx6LBVD0029/main/imx6qrsb4411a1 ./
