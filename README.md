@@ -1,4 +1,4 @@
-# YoctianOS-Server for RSB-4411
+# YoctianOS-Server
 
 ## Warning: It's not finish and it's WIP!
 
