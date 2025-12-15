@@ -1,8 +1,7 @@
-# RSB-4411_Yocto_Klipper
+# YoctianOS-Server for RSB-4411
 
 ## Warning: It's not finish and it's WIP!
 
-Raise3D E2 All-In-One Klipper
 ##### (Info: This it's the packages server!)
 
 ### Packages Server Minimun Requirement:
