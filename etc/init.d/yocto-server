@@ -1,0 +1,36 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+
+SCRIPT="/usr/bin/yocto-server.sh"
+SESSION="yocto-server"
+PIDFILE="/var/run/yocto-server.pid"
+
+start() {
+    echo "Running yocto-server..."
+    if [ -f "$PIDFILE" ] && kill -0 "$(cat $PIDFILE)" 2>/dev/null; then
+        echo "yocto-server already running, skipping start."
+        return 0
+    fi
+
+    if [ -x "$SCRIPT" ]; then
+        "$SCRIPT" &
+        echo $! > "$PIDFILE"
+    else
+        echo "Error: $SCRIPT not found or not executable"
+    fi
+}
+
+stop() {
+    echo "Stopping yocto-server..."
+    screen -S "$SESSION" -X quit 2>/dev/null
+
+    if [ -f "$PIDFILE" ]; then
+        PID=$(cat "$PIDFILE")
+        if kill -0 "$PID" 2>/dev/null; then
+            kill "$PID"
+        fi
+        rm -f "$PIDFILE"
+    fi
+}
