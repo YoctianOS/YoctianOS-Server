@@ -2,13 +2,7 @@
 
 ## Warning: It's not finish and it's WIP!
 
-##### (Info: This it's the packages server!)
-
-### Packages Server Minimun Requirement:
-- 
-
-### Packages Server Recommended Requirement:
-- 
+### You need this for your host (not the router): https://gist.github.com/AstromanGaming/64f7d25be9485df4243a1e0e94c82d76
 
 #### Installation:
 ```
