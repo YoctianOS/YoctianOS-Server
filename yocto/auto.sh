@@ -25,4 +25,3 @@ for TARGET_DIR in $DEB_DIRS; do
   echo "Repository metadata generated in: $TARGET_DIR"
   cd - > /dev/null || exit
 done
-

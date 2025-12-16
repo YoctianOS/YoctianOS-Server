@@ -26,7 +26,7 @@ gzip -9 < Packages > Packages.gz
 # Generate Release file
 apt-ftparchive release . > Release
 
-# Sign the Release file (optional)
-gpg --clearsign -u "your key" -o InRelease Release
+# Sign the Release file (update if needed)
+gpg --clearsign -u "" -o InRelease Release
 
 echo "Repository metadata generated successfully in: $TARGET_DIR"
