@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Yocto package feed directory (update if needed)
-FEED_DIR="./yocto/deb"
+# YoctianOS package directory (update if needed)
+FEED_DIR="./deb"
 
 # Port to serve on
 PORT=5678
@@ -39,7 +39,7 @@ for pkg in screen wget tar; do
 done
 
 # --- Screen session name ---
-SCREEN_NAME="yocto-feed"
+SCREEN_NAME="yoctianos-server"
 
 # Kill existing screen session if running
 if screen -list | grep -q "$SCREEN_NAME"; then
@@ -74,7 +74,7 @@ else
 fi
 
 # --- Start server inside screen ---
-echo "Starting Yocto feed server on port $PORT using Static Web Server..."
+echo "Starting YoctianOS-Server on port $PORT using Static Web Server..."
 screen -dmS "$SCREEN_NAME" bash -c "$SERVER_BIN --directory-listing true --root $FEED_DIR --port $PORT"
 
 echo "Server running in screen session '$SCREEN_NAME'."
