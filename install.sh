@@ -5,8 +5,8 @@ set -euo pipefail
 TMPDIR=""
 TMPARCHIVE=""
 cleanup() {
-    [ -n "${TMPDIR}" ] && rm -rf "${TMPDIR}" || true
-    [ -n "${TMPARCHIVE}" ] && rm -f "${TMPARCHIVE}" || true
+    [ -n "${TMPDIR:-}" ] && rm -rf "${TMPDIR}" || true
+    [ -n "${TMPARCHIVE:-}" ] && rm -f "${TMPARCHIVE}" || true
 }
 trap cleanup EXIT
 
@@ -42,7 +42,9 @@ mkdir -p "$INITD_DIR" "$BIN_DIR" "$FEED_DIR"
 # --- Install init.d script ---
 if [ -f "$REPO_DIR/etc/init.d/yoctianos-server" ]; then
     echo "Installing init.d script..."
-    install -m 755 "$REPO_DIR/etc/init.d/yoctianos-server" "$INITD_DIR/yoctianos-server"
+    cp "$REPO_DIR/etc/init.d/yoctianos-server" "$INITD_DIR/yoctianos-server"
+    chmod 755 "$INITD_DIR/yoctianos-server"
+    echo "Installed $INITD_DIR/yoctianos-server"
 else
     echo "Error: $REPO_DIR/etc/init.d/yoctianos-server not found"
     exit 1
@@ -51,7 +53,9 @@ fi
 # --- Install yoctianos-server.sh ---
 if [ -f "$REPO_DIR/usr/bin/yoctianos-server.sh" ]; then
     echo "Installing yoctianos-server.sh..."
-    install -m 755 "$REPO_DIR/usr/bin/yoctianos-server.sh" "$BIN_DIR/yoctianos-server.sh"
+    cp "$REPO_DIR/usr/bin/yoctianos-server.sh" "$BIN_DIR/yoctianos-server.sh"
+    chmod 755 "$BIN_DIR/yoctianos-server.sh"
+    echo "Installed $BIN_DIR/yoctianos-server.sh"
 else
     echo "Error: $REPO_DIR/usr/bin/yoctianos-server.sh not found"
     exit 1
@@ -66,7 +70,7 @@ else
     echo "Warning: $REPO_DIR/root/yoctianos/deb not found, skipping feed copy"
 fi
 
-# --- Install static-web-server binary (robust) ---
+# --- Install static-web-server binary (robust, BusyBox-friendly) ---
 VERSION="v2.40.1"
 BASE_URL="https://github.com/static-web-server/static-web-server/releases/download/$VERSION"
 ARCH=$(uname -m)
@@ -76,10 +80,8 @@ case "$ARCH" in
     aarch64) FILE="static-web-server-${VERSION}-aarch64-unknown-linux-musl.tar.gz" ;;
     armv7l) FILE="static-web-server-${VERSION}-armv7-unknown-linux-musleabihf.tar.gz" ;;
     i686|i386) FILE="static-web-server-${VERSION}-i686-unknown-linux-musl.tar.gz" ;;
-    mips|mipsel|arm*) 
+    mips|mipsel|arm*)
         echo "Warning: prebuilt static-web-server may not be available for architecture: $ARCH"
-        echo "Attempting to download the closest available build; if it fails, build from source or use a compatible binary."
-        # fallthrough to aarch64 or fail
         FILE=""
         ;;
     *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
@@ -91,7 +93,6 @@ else
     TMPDIR="$(mktemp -d)"
     TMPARCHIVE="/tmp/$FILE"
 
-    # Prefer wget, fallback to curl
     echo "Downloading $FILE..."
     if command -v wget >/dev/null 2>&1; then
         if ! wget -O "$TMPARCHIVE" "$BASE_URL/$FILE"; then
@@ -114,16 +115,17 @@ else
         exit 1
     fi
 
-    # Find an executable named static-web-server anywhere under the temp dir
-    BIN_PATH="$(find "$TMPDIR" -type f -name static-web-server -perm /111 -print -quit || true)"
+    # BusyBox-compatible: find the first matching file and use head
+    BIN_PATH="$(find "$TMPDIR" -type f -name static-web-server 2>/dev/null | head -n 1 || true)"
 
     if [ -n "$BIN_PATH" ]; then
         echo "Installing static-web-server from $BIN_PATH..."
-        install -m 755 "$BIN_PATH" "$BIN_DIR/static-web-server" || { echo "Error: install failed"; exit 1; }
+        cp "$BIN_PATH" "$BIN_DIR/static-web-server"
+        chmod 755 "$BIN_DIR/static-web-server"
         echo "static-web-server installed to $BIN_DIR/static-web-server"
     else
-        echo "Error: static-web-server binary not found after extraction. Listing contents of $TMPDIR:"
-        find "$TMPDIR" -maxdepth 3 -type f -printf '%p\n' || true
+        echo "Error: static-web-server binary not found after extraction. Listing extracted tree:"
+        ls -R "$TMPDIR" || true
         exit 1
     fi
 fi
