@@ -1,8 +1,8 @@
 #!/bin/sh 
 
-FEED_DIR="/root/yocto/deb"
+FEED_DIR="/root/yoctianos/deb"
 PORT=5678
-SCREEN_NAME="yocto-server"
+SCREEN_NAME="yoctianos-server"
 SERVER_BIN="/usr/bin/static-web-server"
 
 # Check directory
@@ -30,7 +30,7 @@ if screen -list | grep -q "$SCREEN_NAME"; then
 fi
 
 # Start server
-echo "Starting Yocto feed server on port $PORT..."
+echo "Starting YoctianOS-Server on port $PORT..."
 screen -dmS "$SCREEN_NAME" sh -c "$SERVER_BIN --directory-listing true --root $FEED_DIR --port $PORT"
 
 IP=$(ip addr show br-lan | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)

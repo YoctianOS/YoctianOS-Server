@@ -31,30 +31,30 @@ BIN_DIR="/usr/bin"
 FEED_DIR="/root"
 
 # --- Install init.d script ---
-if [ -f "$REPO_DIR/etc/init.d/yocto-server" ]; then
+if [ -f "$REPO_DIR/etc/init.d/yoctianos-server" ]; then
     echo "Installing init.d script..."
-    install -m 755 "$REPO_DIR/etc/init.d/yocto-server" "$INITD_DIR/yocto-server"
+    install -m 755 "$REPO_DIR/etc/init.d/yoctianos-server" "$INITD_DIR/yoctianos-server"
 else
-    echo "Error: $REPO_DIR/etc/init.d/yocto-server not found"
+    echo "Error: $REPO_DIR/etc/init.d/yoctianos-server not found"
     exit 1
 fi
 
-# --- Install yocto-server.sh ---
-if [ -f "$REPO_DIR/usr/bin/yocto-server.sh" ]; then
-    echo "Installing yocto-server.sh..."
-    install -m 755 "$REPO_DIR/usr/bin/yocto-server.sh" "$BIN_DIR/yocto-server.sh"
+# --- Install yoctianos-server.sh ---
+if [ -f "$REPO_DIR/usr/bin/yoctianos-server.sh" ]; then
+    echo "Installing yoctianos-server.sh..."
+    install -m 755 "$REPO_DIR/usr/bin/yoctianos-server.sh" "$BIN_DIR/yoctianos-server.sh"
 else
-    echo "Error: $REPO_DIR/usr/bin/yocto-server.sh not found"
+    echo "Error: $REPO_DIR/usr/bin/yoctianos-server.sh not found"
     exit 1
 fi
 
 # --- Copy feed directory ---
-if [ -d "$REPO_DIR/root/yocto/deb" ]; then
+if [ -d "$REPO_DIR/root/yoctianos/deb" ]; then
     echo "Installing feed directory..."
-    mkdir -p "$FEED_DIR/yocto/deb"
-    cp -r "$REPO_DIR/root/yocto/deb/"* "$FEED_DIR/yocto/deb/"
+    mkdir -p "$FEED_DIR/yoctianos/deb"
+    cp -r "$REPO_DIR/root/yoctianos/deb/"* "$FEED_DIR/yoctianos/deb/"
 else
-    echo "Warning: $REPO_DIR/root/yocto/deb not found, skipping feed copy"
+    echo "Warning: $REPO_DIR/root/yoctianos/deb not found, skipping feed copy"
 fi
 
 # --- Install static-web-server binary ---
@@ -84,4 +84,4 @@ else
 fi
 
 echo "Installation complete!"
-echo "Enable service with: /etc/init.d/yocto-server enable && /etc/init.d/yocto-server start"
+echo "Enable service with: /etc/init.d/yoctianos-server enable && /etc/init.d/yoctianos-server start"

@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Target system paths
-INITD_SCRIPT="/etc/init.d/yocto-server"
-BIN_SCRIPT="/usr/bin/yocto-server.sh"
+INITD_SCRIPT="/etc/init.d/yoctianos-server"
+BIN_SCRIPT="/usr/bin/yoctianos-server.sh"
 BIN_SERVER="/usr/bin/static-web-server"
-PIDFILE="/var/run/yocto-server.pid"
+PIDFILE="/var/run/yoctianos-server.pid"
 
 echo "Stopping service if running..."
 if [ -x "$INITD_SCRIPT" ]; then
@@ -19,12 +19,12 @@ else
     echo "Init.d script not found, skipping."
 fi
 
-# Remove yocto-server.sh
+# Remove yoctianos-server.sh
 if [ -f "$BIN_SCRIPT" ]; then
-    echo "Removing yocto-server.sh..."
+    echo "Removing yoctianos-server.sh..."
     rm -f "$BIN_SCRIPT"
 else
-    echo "yocto-server.sh not found, skipping."
+    echo "yoctianos-server.sh not found, skipping."
 fi
 
 # Remove static-web-server binary

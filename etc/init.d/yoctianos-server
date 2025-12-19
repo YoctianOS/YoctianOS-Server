@@ -3,14 +3,14 @@
 START=99
 STOP=10
 
-SCRIPT="/usr/bin/yocto-server.sh"
-SESSION="yocto-server"
-PIDFILE="/var/run/yocto-server.pid"
+SCRIPT="/usr/bin/yoctianos-server.sh"
+SESSION="yoctianos-server"
+PIDFILE="/var/run/yoctianos-server.pid"
 
 start() {
-    echo "Running yocto-server..."
+    echo "Running yoctianos-server..."
     if [ -f "$PIDFILE" ] && kill -0 "$(cat $PIDFILE)" 2>/dev/null; then
-        echo "yocto-server already running, skipping start."
+        echo "yoctianos-server already running, skipping start."
         return 0
     fi
 
@@ -23,7 +23,7 @@ start() {
 }
 
 stop() {
-    echo "Stopping yocto-server..."
+    echo "Stopping yoctianos-server..."
     screen -S "$SESSION" -X quit 2>/dev/null
 
     if [ -f "$PIDFILE" ]; then
