@@ -1,25 +1,31 @@
 #!/bin/sh
+set -euo pipefail
 
-# Ensure required packages are installed
-if ! command -v screen >/dev/null 2>&1; then
-    echo "Installing screen..."
-    opkg update && opkg install screen || { echo "Error: failed to install screen"; exit 1; }
-else
-    echo "screen already installed."
-fi
+# Cleanup on exit
+TMPDIR=""
+TMPARCHIVE=""
+cleanup() {
+    [ -n "${TMPDIR}" ] && rm -rf "${TMPDIR}" || true
+    [ -n "${TMPARCHIVE}" ] && rm -f "${TMPARCHIVE}" || true
+}
+trap cleanup EXIT
 
-if ! command -v wget >/dev/null 2>&1; then
-    echo "Installing wget..."
-    opkg update && opkg install wget || { echo "Error: failed to install wget"; exit 1; }
-else
-    echo "wget already installed."
-fi
+# Ensure required packages are installed (install only once)
+need_pkg=""
+for pkg in screen wget tar; do
+    if ! command -v "$pkg" >/dev/null 2>&1; then
+        need_pkg="$need_pkg $pkg"
+    fi
+done
 
-if ! command -v tar >/dev/null 2>&1; then
-    echo "Installing tar..."
-    opkg update && opkg install tar || { echo "Error: failed to install tar"; exit 1; }
+if [ -n "${need_pkg}" ]; then
+    echo "Installing missing packages:${need_pkg}"
+    opkg update
+    for p in $need_pkg; do
+        opkg install "$p" || { echo "Error: failed to install $p"; exit 1; }
+    done
 else
-    echo "tar already installed."
+    echo "All required packages present."
 fi
 
 # Repo base (current directory)
@@ -29,6 +35,9 @@ REPO_DIR="./"
 INITD_DIR="/etc/init.d"
 BIN_DIR="/usr/bin"
 FEED_DIR="/root"
+
+# Ensure target dirs exist
+mkdir -p "$INITD_DIR" "$BIN_DIR" "$FEED_DIR"
 
 # --- Install init.d script ---
 if [ -f "$REPO_DIR/etc/init.d/yoctianos-server" ]; then
@@ -52,12 +61,12 @@ fi
 if [ -d "$REPO_DIR/root/yoctianos/deb" ]; then
     echo "Installing feed directory..."
     mkdir -p "$FEED_DIR/yoctianos/deb"
-    cp -r "$REPO_DIR/root/yoctianos/deb/"* "$FEED_DIR/yoctianos/deb/"
+    cp -r "$REPO_DIR/root/yoctianos/deb/"* "$FEED_DIR/yoctianos/deb/" || true
 else
     echo "Warning: $REPO_DIR/root/yoctianos/deb not found, skipping feed copy"
 fi
 
-# --- Install static-web-server binary ---
+# --- Install static-web-server binary (robust) ---
 VERSION="v2.40.1"
 BASE_URL="https://github.com/static-web-server/static-web-server/releases/download/$VERSION"
 ARCH=$(uname -m)
@@ -66,21 +75,57 @@ case "$ARCH" in
     x86_64) FILE="static-web-server-${VERSION}-x86_64-unknown-linux-musl.tar.gz" ;;
     aarch64) FILE="static-web-server-${VERSION}-aarch64-unknown-linux-musl.tar.gz" ;;
     armv7l) FILE="static-web-server-${VERSION}-armv7-unknown-linux-musleabihf.tar.gz" ;;
-    i686) FILE="static-web-server-${VERSION}-i686-unknown-linux-musl.tar.gz" ;;
+    i686|i386) FILE="static-web-server-${VERSION}-i686-unknown-linux-musl.tar.gz" ;;
+    mips|mipsel|arm*) 
+        echo "Warning: prebuilt static-web-server may not be available for architecture: $ARCH"
+        echo "Attempting to download the closest available build; if it fails, build from source or use a compatible binary."
+        # fallthrough to aarch64 or fail
+        FILE=""
+        ;;
     *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
-echo "Downloading $FILE..."
-wget -O /tmp/$FILE "$BASE_URL/$FILE"
-tar -xzf /tmp/$FILE -C /tmp
-
-if [ -f "/tmp/static-web-server" ]; then
-    echo "Installing static-web-server..."
-    install -m 755 /tmp/static-web-server "$BIN_DIR/static-web-server"
-    rm -f /tmp/$FILE /tmp/static-web-server
+if [ -z "$FILE" ]; then
+    echo "No suitable prebuilt archive filename for $ARCH; skipping static-web-server install."
 else
-    echo "Error: static-web-server binary not found after extraction"
-    exit 1
+    TMPDIR="$(mktemp -d)"
+    TMPARCHIVE="/tmp/$FILE"
+
+    # Prefer wget, fallback to curl
+    echo "Downloading $FILE..."
+    if command -v wget >/dev/null 2>&1; then
+        if ! wget -O "$TMPARCHIVE" "$BASE_URL/$FILE"; then
+            echo "Error: download failed for $BASE_URL/$FILE"
+            exit 1
+        fi
+    elif command -v curl >/dev/null 2>&1; then
+        if ! curl -L -o "$TMPARCHIVE" "$BASE_URL/$FILE"; then
+            echo "Error: download failed for $BASE_URL/$FILE"
+            exit 1
+        fi
+    else
+        echo "Error: neither wget nor curl available"
+        exit 1
+    fi
+
+    echo "Extracting to $TMPDIR..."
+    if ! tar -xzf "$TMPARCHIVE" -C "$TMPDIR"; then
+        echo "Error: failed to extract $TMPARCHIVE"
+        exit 1
+    fi
+
+    # Find an executable named static-web-server anywhere under the temp dir
+    BIN_PATH="$(find "$TMPDIR" -type f -name static-web-server -perm /111 -print -quit || true)"
+
+    if [ -n "$BIN_PATH" ]; then
+        echo "Installing static-web-server from $BIN_PATH..."
+        install -m 755 "$BIN_PATH" "$BIN_DIR/static-web-server" || { echo "Error: install failed"; exit 1; }
+        echo "static-web-server installed to $BIN_DIR/static-web-server"
+    else
+        echo "Error: static-web-server binary not found after extraction. Listing contents of $TMPDIR:"
+        find "$TMPDIR" -maxdepth 3 -type f -printf '%p\n' || true
+        exit 1
+    fi
 fi
 
 echo "Installation complete!"
