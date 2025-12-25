@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # YoctianOS package directory (update if needed)
-FEED_DIR="./yoctianos/deb"
+FEED_DIR="./YoctianOS"
 
 # Port to serve on
 PORT=5678
