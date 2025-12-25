@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-FEED_DIR="/root/yoctianos/deb"
+FEED_DIR="/root/YoctianOS"
 PORT=5678
 SCREEN_NAME="yoctianos-server"
 SERVER_BIN="/usr/bin/static-web-server"

@@ -62,12 +62,12 @@ else
 fi
 
 # --- Copy feed directory ---
-if [ -d "$REPO_DIR/root/yoctianos/deb" ]; then
+if [ -d "$REPO_DIR/root/YoctianOS" ]; then
     echo "Installing feed directory..."
-    mkdir -p "$FEED_DIR/yoctianos/deb"
-    cp -r "$REPO_DIR/root/yoctianos/deb/"* "$FEED_DIR/yoctianos/deb/" || true
+    mkdir -p "$FEED_DIRYoctianOS"
+    cp -r "$REPO_DIR/root/YoctianOS/"* "$FEED_DIR/YoctianOS/" || true
 else
-    echo "Warning: $REPO_DIR/root/yoctianos/deb not found, skipping feed copy"
+    echo "Warning: $REPO_DIR/root/YoctianOS not found, skipping feed copy"
 fi
 
 # --- Install static-web-server binary (robust, BusyBox-friendly) ---
