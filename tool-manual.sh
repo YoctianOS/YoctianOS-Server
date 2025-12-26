@@ -44,7 +44,6 @@ extract_version_from_filename() {
   local base="${fname%.deb}"
   if [[ "$base" =~ _([^_]+)_[^_]+$ ]]; then printf '%s' "${BASH_REMATCH[1]}"; return; fi
   if [[ "$base" =~ -([0-9A-Za-z.+~:]+)$ ]]; then printf '%s' "${BASH_REMATCH[1]}"; return; fi
-  if [[ "$base" =~ (DEV[-_]r[0-9]+) ]]; then printf '%s' "${BASH_REMATCH[1]}"; return; fi
   if [[ "$base" =~ (git[-_]r[0-9]+) ]]; then printf '%s' "${BASH_REMATCH[1]}"; return; fi
   printf ''
 }

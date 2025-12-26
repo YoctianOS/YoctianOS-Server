@@ -65,10 +65,6 @@ extract_version_from_filename() {
     printf '%s' "${BASH_REMATCH[1]}"
     return
   fi
-  if [[ "$base" =~ (DEV[-_]r[0-9]+) ]]; then
-    printf '%s' "${BASH_REMATCH[1]}"
-    return
-  fi
   if [[ "$base" =~ (git[-_]r[0-9]+) ]]; then
     printf '%s' "${BASH_REMATCH[1]}"
     return
